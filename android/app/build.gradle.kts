@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.her_affirmations"
+    namespace = "com.solvify.heraffirmations"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.her_affirmations"
+        applicationId = "com.solvify.heraffirmations"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

@@ -22,9 +22,19 @@ class StyleProvider extends ChangeNotifier {
   /// -------- Getters --------
   Color get topcontainercolor => _topcontainercolor;
   Color get containerColor => _containerColor;
+  Color get cardColor => _containerColor;
   Color get fontColor => _fontColor;
   String get customFont => _customFont;
   String get backgroundImage => _backgroundImage;
+
+  /// A very dark, theme-tinted background derived from the card color.
+  Color get scaffoldBg {
+    final hsl = HSLColor.fromColor(_containerColor);
+    return hsl
+        .withLightness((hsl.lightness * 0.18).clamp(0.04, 0.12))
+        .withSaturation((hsl.saturation * 0.55).clamp(0.0, 0.35))
+        .toColor();
+  }
 
   /// -------- Update Methods --------
 

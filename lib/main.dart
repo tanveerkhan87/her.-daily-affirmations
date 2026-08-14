@@ -1,26 +1,31 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:her_daily_affirmations/provider/hide_quotes/hide_item_provider.dart';
-import 'package:her_daily_affirmations/screens/profile/reminder_screen.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
-import 'package:her_daily_affirmations/provider/for_dark_light_mood/theme_changer.dart';
-import 'package:her_daily_affirmations/provider/for_fav/fav_items_provider.dart';
-import 'package:her_daily_affirmations/provider/themes/styles_provider.dart';
-import 'package:her_daily_affirmations/view/splash_screen.dart';
 
-void main() {
-  debugPrint('Navigator Key Assigned: ${ReminderScreen.navigatorKey}');
+import 'core/theme/app_theme.dart';
+import 'shared/providers/favorites_provider.dart';
+import 'shared/providers/hidden_quotes_provider.dart';
+import 'shared/providers/style_provider.dart';
+import 'shared/providers/theme_mode_provider.dart';
+import 'shared/providers/category_provider.dart';
+import 'features/splash/splash_screen.dart';
 
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Lock orientation to portrait only
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.tanveerkhan.her_daily_affirmations.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+  );
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Initialize Awesome Notifications with custom channel and icon
   AwesomeNotifications().initialize(
     'resource://drawable/res_app_icon',
     [
@@ -28,7 +33,7 @@ void main() {
         channelKey: 'tanveerkhan123',
         channelName: 'her_daily_affirmations',
         channelDescription: 'Channel for Reminder Notifications',
-        defaultColor: Color(0xFF9D50DD),
+        defaultColor: const Color(0xFF9D50DD),
         ledColor: Colors.white,
       ),
     ],
@@ -38,56 +43,36 @@ void main() {
         channelGroupName: 'Basic group',
       ),
     ],
-    debug: true,
+    debug: false,
   );
 
-  runApp(MyApp());
+  runApp(const HerApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key, Key});
+class HerApp extends StatelessWidget {
+  const HerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Favorite items state management
-        ChangeNotifierProvider(create: (_) => FavItemProvider()),
 
-        // App theme (light/dark mode) management
-        ChangeNotifierProvider(create: (_) => ThemeChanger()),
 
-        // Centralized style customization provider
+        ChangeNotifierProvider(create: (_) => FavoritesProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeModeProvider()),
         ChangeNotifierProvider(create: (_) => StyleProvider()),
-
-        // Provider for hiding quotes
-        ChangeNotifierProvider(create: (_) => HideProvider()),
+        ChangeNotifierProvider(create: (_) => HiddenQuotesProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
       ],
-      child: Builder(
-        builder: (BuildContext context) {
-          final themeChanger = Provider.of<ThemeChanger>(context);
-
+      child: Consumer<ThemeModeProvider>(
+        builder: (context, themeProvider, _) {
           return MaterialApp(
-            navigatorKey: ReminderScreen.navigatorKey, // Used to navigate from outside widget tree (e.g., from notifications)
             debugShowCheckedModeBanner: false,
-
-            // Dynamic theming using Provider
-            themeMode: themeChanger.themeMode,
-
-            // Light Theme Configuration
-            theme: ThemeData(
-              visualDensity: VisualDensity.adaptivePlatformDensity,
-              brightness: Brightness.light,
-              useMaterial3: false,
-            ),
-
-            // Dark Theme Configuration
-            darkTheme: ThemeData(
-              brightness: Brightness.dark,
-            ),
-
-            // Custom splash screen (replaces Flutter default)
-            home: SplashScreen(),
+            title: 'Her Daily Affirmations',
+            themeMode: themeProvider.themeMode,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            home: const SplashScreen(),
           );
         },
       ),

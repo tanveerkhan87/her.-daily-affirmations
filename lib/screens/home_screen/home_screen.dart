@@ -207,11 +207,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final hideProvider = Provider.of<HideProvider>(context, listen: false);
     final ThemeData theme = Theme.of(context);
 
-    return Scaffold(
+    return Consumer<StyleProvider>(
+      builder: (context, styleProvider, child) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      return Scaffold(
+      backgroundColor: isDark ? styleProvider.scaffoldBg : const Color(0xFFF9F5F6),
       // The Consumer widget listens to changes in the StyleProvider.
       // Whenever the style changes (e.g., theme, font), this part of the UI rebuilds.
-      body: Consumer<StyleProvider>(
-        builder: (context, styleProvider, child) {
+      body: Builder(
+        builder: (context) {
           return Column(
             children: [
               // --- TOP HEADER "Her." ---
@@ -442,6 +446,8 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
+    );
+    },
     );
   }
 }
